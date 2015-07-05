@@ -1,0 +1,162 @@
+* Environment
+** Debugging
+
+#+begin_src emacs-lisp
+  (setq debug-on-error t)
+#+end_src
+
+** Packages
+#+begin_src emacs-lisp
+  (defun ensure-package (package)
+    (if (not (package-installed-p package))
+        (el-get 'sync package)))
+
+  (setq el-get-sources '(
+                         (:name replace-colorthemes
+                                :description "Replacement color themes."
+                                :type github
+                                :pkgname "emacs-jp/replace-colorthemes")
+                         ))
+
+  (setq el-get-verbose t)
+#+end_src
+
+** Paths
+
+#+begin_src emacs-lisp
+  (add-to-list 'load-path (expand-file-name "src" "~/.emacs.d"))
+  ;;(add-to-list 'custom-theme-load-path (expand-file-name "src/replace-colorthemes" "~/.emacs.d"))
+  
+#+end_src
+
+** Files
+*** Revert all files
+
+#+begin_src emacs-lisp
+  (global-auto-revert-mode t)
+#+end_src
+
+*** Lock files
+
+#+BEGIN_SRC emacs-lisp
+  (setq create-lockfiles nil)
+  (setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+#+END_SRC
+
+** Server
+
+#+BEGIN_SRC emacs-lisp
+  (load "server")
+  (unless (server-running-p)
+    (server-start))
+#+END_SRC
+
+* Look and feel
+** Theme
+
+#+begin_src emacs-lisp
+  
+
+  (ensure-package 'alect-themes)
+  (ensure-package 'spacemacs-theme)
+  (ensure-package 'replace-colorthemes)
+      
+  (load-theme 'alect-black-alt)
+
+  
+#+end_src
+
+** COMMENT Scrolling
+
+#+begin_src emacs-lisp
+  (ensure-package 'smooth-scrolling)
+
+  (setq smooth-scroll-margin 5)  
+  (setq scroll-step            1
+          scroll-conservatively  10000)
+#+end_src
+
+* Editing tools
+** Yas/Snippet
+
+#+begin_src emacs-lisp
+  ;; Taken from starter-kit.org to fix org-mode/yas incompatibility
+  (defun yas/org-very-safe-expand ()
+    (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
+  
+  (defun yas/org-setup ()
+    ;; yasnippet (using the new org-cycle hooks)
+    (make-variable-buffer-local 'yas/trigger-key)
+    (setq yas/trigger-key [tab])
+    (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+    (define-key yas/keymap [tab] 'yas/next-field)
+    ;; Run this as the last command, to prevent the popup
+    (yas/initialize))
+  
+  (add-hook 'org-mode-hook #'yas/org-setup)
+#+end_src
+
+#+BEGIN_SRC emacs-lisp
+  (ensure-package 'yasnippet)
+  (require 'yasnippet)
+  
+  (yas/global-mode 1)
+#+END_SRC
+
+* Searching
+** Ido-menu
+
+#+begin_src emacs-lisp
+  (ensure-package 'idomenu)
+  (ido-mode 1)
+  (setq ido-enable-flex-matching t)
+  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+
+  (defun ts/ido-forward ()
+    (interactive)
+    (ido-next-match))
+
+  (defun ts/ido-backwards ()
+    (interactive)
+    (ido-prev-match))
+
+  (defun ts/ido-define-keys () ;; C-n/p is more intuitive in vertical layout
+    (define-key ido-completion-map (kbd "C-n") 'ts/ido-forward)
+    (define-key ido-completion-map (kbd "C-p") 'ts/ido-backwards))
+  (add-hook 'ido-setup-hook 'ts/ido-define-keys)
+
+  (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
+#+end_src
+
+** helm
+
+#+begin_src emacs-lisp
+  (ensure-package 'helm)
+
+  (ensure-package 'helm-cmd-t)
+#+end_src
+
+* Development
+** Magit
+
+#+begin_src emacs-lisp
+  (ensure-package 'magit)
+#+end_src
+
+** Erlang
+#+begin_src emacs-lisp
+  (ensure-package 'edts)
+#+end_src
+
+** Paredit
+
+#+begin_src emacs-lisp
+  (ensure-package 'paredit)
+#+end_src
+
+* Keys
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x g") 'magit-status)
+#+end_src

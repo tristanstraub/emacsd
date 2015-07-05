@@ -4,12 +4,14 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t) 
-;;(add-to-list 'load-path (expand-file-name "src/el-get" "~/.emacs.d"))
+(add-to-list 'load-path (expand-file-name "el-get/el-get" "~/.emacs.d"))
+
+(setq el-get-recipe-path-emacswiki nil)
 
 (unless (require 'el-get nil t)
   (setq el-get-install-branch "master")
   (load-file (expand-file-name "el-get-install.el" "~/.emacs.d"))
-  (el-get-emacswiki-refresh el-get-recipe-path-emacswiki t)
+  ;;(el-get-emacswiki-refresh el-get-recipe-path-emacswiki t)
   (unless (file-directory-p el-get-recipe-path-elpa)
     (el-get-elpa-build-local-recipes)))
 

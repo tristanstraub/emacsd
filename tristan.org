@@ -27,7 +27,7 @@
 #+begin_src emacs-lisp
   (add-to-list 'load-path (expand-file-name "src" "~/.emacs.d"))
   ;;(add-to-list 'custom-theme-load-path (expand-file-name "src/replace-colorthemes" "~/.emacs.d"))
-  
+
 #+end_src
 
 ** Files
@@ -57,15 +57,15 @@
 ** Theme
 
 #+begin_src emacs-lisp
-  
+
 
   (ensure-package 'alect-themes)
   (ensure-package 'spacemacs-theme)
   (ensure-package 'replace-colorthemes)
-      
+
   (load-theme 'alect-black-alt)
 
-  
+
 #+end_src
 
 ** Line numbers
@@ -73,12 +73,28 @@
   (global-linum-mode 1)
 #+end_src
 
+** Whitespace
+
+#+begin_src emacs-lisp
+  ;;(setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark)))
+  (setq whitespace-style (quote (tabs)))
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  (global-whitespace-mode 1)
+#+end_src
+
+** GUI
+
+#+begin_src emacs-lisp
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+#+end_src
+
 ** COMMENT Scrolling
 
 #+begin_src emacs-lisp
   (ensure-package 'smooth-scrolling)
 
-  (setq smooth-scroll-margin 5)  
+  (setq smooth-scroll-margin 5)
   (setq scroll-step            1
           scroll-conservatively  10000)
 #+end_src
@@ -88,7 +104,7 @@
 
 #+BEGIN_SRC emacs-lisp
   (ensure-package 'yasnippet)
-  
+
   (yas/global-mode 1)
 #+END_SRC
 
@@ -96,7 +112,7 @@
   ;; Taken from starter-kit.org to fix org-mode/yas incompatibility
   (defun yas/org-very-safe-expand ()
     (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
-  
+
   (defun yas/org-setup ()
     ;; yasnippet (using the new org-cycle hooks)
     (make-variable-buffer-local 'yas/trigger-key)
@@ -105,7 +121,7 @@
     (define-key yas/keymap [tab] 'yas/next-field)
     ;; Run this as the last command, to prevent the popup
     (yas/initialize))
-  
+
   (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
@@ -170,13 +186,13 @@
 
 
     (defcustom ts/helm-sources '(
-                                 ts/helm-cmd-t        
-                                 helm-source-buffers-list 
+                                 ts/helm-cmd-t
+                                 helm-source-buffers-list
                                  helm-source-ls-git
                                  ;;helm-source-git-grep
                                  ;;helm-source-ido-virtual-buffers
                                  )
-      
+
       "Your preferred sources to navigate"
       :type '(repeat (choice symbol))
       :group 'helm-files)
@@ -210,7 +226,7 @@
 #+begin_src emacs-lisp
   (ensure-package 'magit)
 #+end_src
-   
+
 ** Erlang
 #+begin_src emacs-lisp
   (ensure-package 'edts)
@@ -226,6 +242,16 @@
 
 #+begin_src emacs-lisp
   (ensure-package 'coffee-mode)
+
+  (defun coffee-custom ()
+      "coffee-mode-hook"
+      ;;(local-set-key (kbd "C-c C-r") 'coffee-compile-region)
+      (local-set-key (kbd "<backtab>") 'coffee-indent-shift-left)
+      (local-set-key (kbd "C-c C-c") 'coffee-compile-buffer-or-region)
+       (set (make-local-variable 'tab-width) 2))
+
+  (add-hook 'coffee-mode-hook
+            '(lambda() (coffee-custom)))
 #+end_src
 
 * Keys

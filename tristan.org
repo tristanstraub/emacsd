@@ -132,7 +132,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
     (setq yas/trigger-key [tab])
     (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
     (define-key yas/keymap [tab] 'yas/next-field)
-    ;; Run this as the last command, to prevent the popup
+    ;; Run this as the last command, to prevent the popup of multiple possible "src" expansions
     (yas/initialize))
 
   (add-hook 'org-mode-hook #'yas/org-setup)

@@ -150,6 +150,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-undo-tree-mode)
 #+end_src
 
+** Ace-jump
+
+#+begin_src emacs-lisp
+  (ensure-package 'ace-jump-mode)
+#+end_src
+
 * Searching
 ** Project root
 
@@ -297,4 +303,5 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-set-key (kbd "C-c C-f") 'neotree-find)
   (global-set-key (kbd "C-. f") 'ffap)
   (global-set-key (kbd "C-=") 'er/expand-region)
+  (define-key global-map (kbd "C-0") 'ace-jump-mode)
 #+end_src

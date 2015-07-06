@@ -94,6 +94,14 @@
   (tool-bar-mode 0)
 #+end_src
 
+** Yes or No
+
+Make yes or no a single key thing, instead of having to type "yes(return)".
+
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
 ** COMMENT Scrolling
 
 #+begin_src emacs-lisp

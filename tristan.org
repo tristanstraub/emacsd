@@ -53,6 +53,11 @@
     (server-start))
 #+END_SRC
 
+** Text
+#+begin_src emacs-lisp
+  (setq tab-width 2)
+#+end_src
+
 * Look and feel
 ** Theme
 
@@ -123,6 +128,12 @@
     (yas/initialize))
 
   (add-hook 'org-mode-hook #'yas/org-setup)
+#+end_src
+
+** Expand region
+
+#+begin_src emacs-lisp
+  (ensure-package 'expand-region)
 #+end_src
 
 * Searching
@@ -219,7 +230,6 @@
       (neotree-find file)))
 #+end_src
 
-
 * Development
 ** Magit
 
@@ -242,16 +252,22 @@
 
 #+begin_src emacs-lisp
   (ensure-package 'coffee-mode)
+  (require 'coffee-mode)
 
   (defun coffee-custom ()
       "coffee-mode-hook"
       ;;(local-set-key (kbd "C-c C-r") 'coffee-compile-region)
       (local-set-key (kbd "<backtab>") 'coffee-indent-shift-left)
       (local-set-key (kbd "C-c C-c") 'coffee-compile-buffer-or-region)
-       (set (make-local-variable 'tab-width) 2))
+       (set (make-local-variable 'tab-width) 2)
+       (set (make-local-variable 'indent-tabs-mode) t))
 
   (add-hook 'coffee-mode-hook
             '(lambda() (coffee-custom)))
+
+  (custom-set-variables '(coffee-tab-width 2))
+
+
 #+end_src
 
 * Keys
@@ -266,4 +282,5 @@
   (global-set-key (kbd "M-`") 'neotree-of-current-project)
   (global-set-key (kbd "C-c C-f") 'neotree-find)
   (global-set-key (kbd "C-. f") 'ffap)
+  (global-set-key (kbd "C-=") 'er/expand-region)
 #+end_src

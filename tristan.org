@@ -160,27 +160,49 @@
 ** helm
 
 #+begin_src emacs-lisp
-  (ensure-package 'helm)
-  (ensure-package 'helm-cmd-t)
-  (ensure-package 'helm-ls-git)
-  (ensure-package 'helm-git-grep)
-  (require 'helm-config)
+    (ensure-package 'helm)
+    (ensure-package 'helm-cmd-t)
+    (ensure-package 'helm-ls-git)
+    (ensure-package 'helm-git-grep)
+    (require 'helm-config)
 
-  (defcustom ts/helm-sources '(helm-source-git-grep
-                               helm-source-buffers-list helm-source-ido-virtual-buffers)
-    
-    "Your preferred sources to navigate"
-    :type '(repeat (choice symbol))
-    :group 'helm-files)
+    (defvar ts/helm-cmd-t nil)
 
-  (defun ts/helm-cmd-t ()
-    "Preconfigured `helm' for opening direct-web files."
-    (interactive)
-    (setq direct-web/helm-cmd-t (helm-cmd-t-get-create-source (helm-cmd-t-root-data)))
-    (let ((helm-ff-transformer-show-only-basename nil))
-      (helm-other-buffer ts/helm-sources "*helm for direct-web*")))
+
+    (defcustom ts/helm-sources '(
+                                 ts/helm-cmd-t        
+                                 helm-source-buffers-list 
+                                 helm-source-ls-git
+                                 ;;helm-source-git-grep
+                                 ;;helm-source-ido-virtual-buffers
+                                 )
+      
+      "Your preferred sources to navigate"
+      :type '(repeat (choice symbol))
+      :group 'helm-files)
+
+    (defun ts/helm-cmd-t ()
+      "Preconfigured `helm' for opening direct-web files."
+      (interactive)
+      (setq ts/helm-cmd-t (helm-cmd-t-get-create-source (helm-cmd-t-root-data)))
+      (let ((helm-ff-transformer-show-only-basename nil))
+        (helm-other-buffer ts/helm-sources "*helm*")))
 
 #+end_src
+
+** neotree
+
+#+begin_src emacs-lisp
+  (ensure-package 'neotree)
+
+  (defun neotree-of-current-project ()
+    (interactive)
+    (let ((file (buffer-file-name))
+          (root (ts/project-root)))
+      (neotree-dir root)
+      (neotree-find file)))
+#+end_src
+
 
 * Development
 ** Magit
@@ -215,4 +237,6 @@
   (global-set-key (kbd "M-t") 'ts/helm-cmd-t)
   (global-set-key (kbd "C-c C-y") 'ts/grep-project)
   (global-set-key (kbd "C-c r") 'revert-buffer)
+  (global-set-key (kbd "M-`") 'neotree-of-current-project)
+  (global-set-key (kbd "C-c C-f") 'neotree-find)
 #+end_src

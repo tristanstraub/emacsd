@@ -68,6 +68,11 @@
   
 #+end_src
 
+** Line numbers
+#+begin_src emacs-lisp
+  (global-linum-mode 1)
+#+end_src
+
 ** COMMENT Scrolling
 
 #+begin_src emacs-lisp
@@ -105,6 +110,29 @@
 #+end_src
 
 * Searching
+** Project root
+
+#+begin_src emacs-lisp
+  (ensure-package 'project-root)
+  (setq project-roots
+        '(
+          ("Generic Git Project" :root-contains-files (".git"))))
+
+  (defun ts/project-root ()
+    (with-project-root
+      (cdr project-details)))
+
+  (defun ts/grep-project (term)
+    (interactive
+     (list (if (use-region-p)
+               (buffer-substring (region-beginning) (region-end))
+               (read-string "grep: "))))
+    (grep (concat "grep -nH -iR --exclude='*.old' --exclude='*.json' --exclude='TAGS' --exclude-dir='builtAssets' --exclude-dir='lcov-report' --exclude-dir='build' --exclude-dir='node_modules' --exclude-dir='coverage' --exclude='*.css' --exclude='*.js' --exclude='.#*' -e \""
+  ;;                term  "\" " (ts/project-root) "*" " | cut -c 1-160"
+                  term  "\" " (ts/project-root) "*"
+                  )))
+#+end_src
+
 ** Ido-menu
 
 #+begin_src emacs-lisp
@@ -172,9 +200,19 @@
   (ensure-package 'paredit)
 #+end_src
 
+** Coffee script
+
+#+begin_src emacs-lisp
+  (ensure-package 'coffee-mode)
+#+end_src
+
 * Keys
+
+** Global bindings
 
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
   (global-set-key (kbd "M-t") 'ts/helm-cmd-t)
+  (global-set-key (kbd "C-c C-y") 'ts/grep-project)
+  (global-set-key (kbd "C-c r") 'revert-buffer)
 #+end_src

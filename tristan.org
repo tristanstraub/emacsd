@@ -326,6 +326,26 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (setq org-plantuml-jar-path (expand-file-name "~/vendor/plantuml/plantuml.jar"))
 #+end_src
 
+** Clojure
+*** Cider
+
+#+begin_src emacs-lisp
+  (ensure-package 'cider)
+
+  (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+#+end_src
+
+*** Paredit in clojure-mode
+
+#+begin_src emacs-lisp
+  (defun clojure-mode-settings ()
+   (paredit-mode 1)
+   (cider-mode 1)
+   (show-paren-mode))
+
+  (add-hook 'clojure-mode-hook 'clojure-mode-settings)
+#+end_src
+
 * Keys
 
 ** Global bindings

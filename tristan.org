@@ -297,6 +297,28 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
     (run-shell-command-in-dir (file-name-directory (buffer-file-name)) (concat "coffee " (shell-quote-argument buffer-file-name))))
 #+end_src
 
+** org-babel
+#+begin_src emacs-lisp
+  (setq org-confirm-babel-evaluate nil)
+    (setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((R . t)
+       (emacs-lisp . t)
+       (ditaa . t)
+       (ruby . t)
+       (sh . t)
+       (perl . t)
+       (python . t)
+       (plantuml . t)
+       (js . t)
+       (sql . t)))
+
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+
+  (setq org-plantuml-jar-path (expand-file-name "~/vendor/plantuml/plantuml.jar"))
+#+end_src
+
 * Keys
 
 ** Global bindings

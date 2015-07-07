@@ -287,7 +287,14 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
   (custom-set-variables '(coffee-tab-width 2))
 
+  (defun run-shell-command-in-dir (dir command)
+      (message (concat "DIR:" dir " COMMAND: " command))
+      (let ((default-directory dir))
+        (async-shell-command command)))
 
+  (defun coffee-on-file ()
+    (interactive)
+    (run-shell-command-in-dir (file-name-directory (buffer-file-name)) (concat "coffee " (shell-quote-argument buffer-file-name))))
 #+end_src
 
 * Keys

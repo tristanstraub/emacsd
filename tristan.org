@@ -300,7 +300,8 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 ** org-babel
 #+begin_src emacs-lisp
   (setq org-confirm-babel-evaluate nil)
-    (setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
+
+  (setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
     (org-babel-do-load-languages
      'org-babel-load-languages
      '((R . t)

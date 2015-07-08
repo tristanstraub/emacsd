@@ -54,8 +54,10 @@
 #+END_SRC
 
 ** Text
+
 #+begin_src emacs-lisp
   (setq tab-width 2)
+  (setq-default indent-tabs-mode nil)
 #+end_src
 
 * Look and feel
@@ -294,7 +296,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
       (local-set-key (kbd "<backtab>") 'coffee-indent-shift-left)
       (local-set-key (kbd "C-c C-c") 'coffee-compile-buffer-or-region)
        (set (make-local-variable 'tab-width) 2)
-       (set (make-local-variable 'indent-tabs-mode) t))
+       (set (make-local-variable 'indent-tabs-mode) nil))
 
   (add-hook 'coffee-mode-hook
             '(lambda() (coffee-custom)))

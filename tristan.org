@@ -334,6 +334,54 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (setq org-plantuml-jar-path (expand-file-name "~/vendor/plantuml/plantuml.jar"))
 #+end_src
 
+** Mocha test runner
+
+#+begin_src emacs-lisp
+  (require 'compile)
+
+  (defun mocha-errors ()
+    (interactive)
+
+    (local-set-key (kbd "<tab>") 'next-error-no-select)
+    (local-set-key (kbd "<backtab>") 'previous-error-no-select)
+
+    (make-local-variable 'compilation-error-regexp-alist)
+
+    (pushnew '("\\([_[:alnum:]-/]+[.]\\(coffee\\|js\\)\\):\\([[:digit:]]+\\):[[:digit:]]+"
+       1 3) compilation-error-regexp-alist)
+
+  )
+
+  (defun run-current-test (watchp)
+      (let* ((root (ts/project-root))
+             (filename (buffer-file-name))
+             (relative-test-filename (file-relative-name filename root))
+             (test-to-run (if current-prefix-arg
+                              (or previous-test relative-test-filename)
+                              relative-test-filename)))
+
+        (setq previous-test relative-test-filename)
+
+        (run-shell-command-in-dir root (concat "TZ=utc NODE_ENV=test " root "node_modules/.bin/mocha --bail "
+                                               (if watchp " -w " "")
+                                               test-to-run
+
+                                               ))
+
+        (with-current-buffer "*Async Shell Command*"
+            ;;(compilation-mode)
+            ;;(other-window 1)
+            ;;(beginning-of-buffer)
+            )))
+
+  (defun run-mocha (arg)
+      (interactive "P")
+
+      (run-current-test (equal arg '(4) )))
+
+  (add-hook 'compilation-mode-hook 'mocha-errors)
+#+end_src
+
 * Keys
 
 ** Global bindings
@@ -349,5 +397,6 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-set-key (kbd "C-=") 'er/expand-region)
   (define-key global-map (kbd "C-0") 'ace-jump-mode)
   (global-set-key (kbd "M-1") 'coffee-on-file)
+  (global-set-key (kbd "C-c m") 'run-mocha)
   (key-chord-define-global "DF" 'backtab)
 #+end_src

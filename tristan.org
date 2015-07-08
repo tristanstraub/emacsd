@@ -319,6 +319,37 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
        (coffee-compile-buffer)))
 #+end_src
 
+#+BEGIN_SRC emacs-lisp
+  (defun run-jshint-coffee()
+    "Runs all the tests in the current buffer"
+    (interactive)
+    (let* (command exit-value (buf-name (buffer-file-name))
+                   (temp-file (concat buf-name ".js"))
+                   (temp-jshint-file (concat temp-file ".hint")))
+
+
+      (setq command (concat "coffee -p -b -c \"" buf-name "\" > " temp-file))
+      (setq exit-value (shell-command command))
+
+      (setq command (concat "jshint --verbose --config /home/tristan/.jshintrc \"" temp-file "\" > " temp-jshint-file))
+      (setq exit-value (shell-command command))
+
+      (let ((buffer (create-file-buffer temp-jshint-file)))
+        (with-current-buffer buffer
+          (erase-buffer)
+          (insert-file-contents temp-jshint-file)
+          (delete-file temp-file)
+          (delete-file temp-jshint-file))
+
+        (display-buffer buffer))))
+#+END_SRC
+
+** Jade
+
+#+begin_src emacs-lisp
+  (ensure-package 'jade-mode)
+#+end_src
+
 ** org-babel
 #+begin_src emacs-lisp
   (setq org-confirm-babel-evaluate nil)
@@ -407,4 +438,9 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-set-key (kbd "M-1") 'coffee-on-file)
   (global-set-key (kbd "C-c m") 'run-mocha)
   (key-chord-define-global "DF" 'backtab)
+
+  (defun setup-jshint-coffee ()
+    (local-set-key (kbd "C-c j") 'run-jshint-coffee))
+
+  (add-hook 'coffee-mode-hook 'setup-jshint-coffee)
 #+end_src

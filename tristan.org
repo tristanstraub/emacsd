@@ -156,6 +156,20 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'ace-jump-mode)
 #+end_src
 
+** Key chords
+
+#+begin_src emacs-lisp
+  (ensure-package 'key-chord)
+  (key-chord-mode 1)
+
+  (fset 'backtab
+     (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([21 45 50 24 tab] 0 "%d")) arg)))
+
+  (fset 'forwardtab
+     (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([21 50 24 tab] 0 "%d")) arg)))
+#+end_src
+
+
 * Searching
 ** Project root
 
@@ -335,4 +349,5 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-set-key (kbd "C-=") 'er/expand-region)
   (define-key global-map (kbd "C-0") 'ace-jump-mode)
   (global-set-key (kbd "M-1") 'coffee-on-file)
+  (key-chord-define-global "DF" 'backtab)
 #+end_src

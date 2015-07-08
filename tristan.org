@@ -273,15 +273,15 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'magit)
 #+end_src
 
-** Erlang
-#+begin_src emacs-lisp
-  (ensure-package 'edts)
-#+end_src
-
 ** Paredit
 
 #+begin_src emacs-lisp
   (ensure-package 'paredit)
+#+end_src
+
+** Erlang
+#+begin_src emacs-lisp
+  (ensure-package 'edts)
 #+end_src
 
 ** Coffee script

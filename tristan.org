@@ -162,6 +162,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'ace-jump-mode)
 #+end_src
 
+** IEdit
+
+#+begin_src emacs-lisp
+  (ensure-package 'iedit)
+#+end_src
+
 * Searching
 ** Project root
 

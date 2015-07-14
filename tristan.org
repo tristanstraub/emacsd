@@ -427,6 +427,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (add-hook 'compilation-mode-hook 'mocha-errors)
 #+end_src
 
+* Agenda
+
+#+begin_src emacs-lisp
+  (setq org-agenda-files (list "~/SpiderOak Hive/me/tasks.org" "~/SpiderOak Hive/me/journal.org"))
+#+end_src
+
 * Keys
 
 ** Global bindings

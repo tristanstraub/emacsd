@@ -104,6 +104,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
+** Auto revert
+
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+#+end_src
+
 ** COMMENT Scrolling
 
 #+begin_src emacs-lisp
@@ -169,6 +175,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
   (fset 'forwardtab
      (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([21 50 24 tab] 0 "%d")) arg)))
+#+end_src
+
+** IEdit
+
+#+begin_src emacs-lisp
+  (ensure-package 'iedit)
 #+end_src
 
 * Searching
@@ -350,6 +362,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
         (display-buffer buffer))))
 #+END_SRC
 
+* Agenda
+
+#+begin_src emacs-lisp
+  (setq org-agenda-files (list "~/SpiderOak Hive/me/tasks.org" "~/SpiderOak Hive/me/journal.org"))
+#+end_src
+
 ** Jade
 
 #+begin_src emacs-lisp
@@ -427,10 +445,24 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (add-hook 'compilation-mode-hook 'mocha-errors)
 #+end_src
 
-* Agenda
+** Clojure
+*** Cider
 
 #+begin_src emacs-lisp
-  (setq org-agenda-files (list "~/SpiderOak Hive/me/tasks.org" "~/SpiderOak Hive/me/journal.org"))
+  (ensure-package 'cider)
+
+  (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+#+end_src
+
+*** Paredit in clojure-mode
+
+#+begin_src emacs-lisp
+  (defun clojure-mode-settings ()
+   (paredit-mode 1)
+   (cider-mode 1)
+   (show-paren-mode))
+
+  (add-hook 'clojure-mode-hook 'clojure-mode-settings)
 #+end_src
 
 * Keys

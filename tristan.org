@@ -171,8 +171,13 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
      (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([21 50 24 tab] 0 "%d")) arg)))
 #+end_src
 
-
 * Searching
+** Bookmarks+
+#+begin_src emacs-lisp
+  (ensure-package 'bookmark+)
+  (setq bookmark-save-flag 1)
+#+end_src
+
 ** Project root
 
 #+begin_src emacs-lisp

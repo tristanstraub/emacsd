@@ -315,7 +315,8 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
   (defun coffee-on-file ()
     (interactive)
-    (run-shell-command-in-dir (file-name-directory (buffer-file-name)) (concat "coffee " (shell-quote-argument buffer-file-name))))
+    (run-shell-command-in-dir (file-name-directory (buffer-file-name))
+      (concat "coffee " (shell-quote-argument buffer-file-name))))
 
   (defun coffee-compile-buffer-or-region ()
     (interactive)

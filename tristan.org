@@ -84,8 +84,8 @@
 ** Whitespace
 
 #+begin_src emacs-lisp
-  (setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark)))
-  ;;(setq whitespace-style (quote (tabs)))
+  ;;(setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark)))
+  (setq whitespace-style (quote (tabs spaces)))
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
   (global-whitespace-mode 1)
 #+end_src
@@ -370,6 +370,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
         (display-buffer buffer))))
 #+END_SRC
 
+** Ruby
+#+begin_src emacs-lisp
+  (ensure-package 'inf-ruby)
+#+end_src
+
 * Agenda
 
 #+begin_src emacs-lisp
@@ -422,7 +427,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
        1 3) compilation-error-regexp-alist)
 
   )
-
+  (defvar previous-test nil)
   (defun run-current-test (watchp)
       (let* ((root (ts/project-root))
              (filename (buffer-file-name))

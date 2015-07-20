@@ -70,7 +70,8 @@
   (ensure-package 'spacemacs-theme)
   (ensure-package 'replace-colorthemes)
 
-  (load-theme 'alect-black-alt)
+  ;;(load-theme 'alect-black-alt)
+  (load-theme 'deeper-blue)
 
 
 #+end_src
@@ -119,6 +120,13 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (setq scroll-step            1
           scroll-conservatively  10000)
 #+end_src
+
+** neotree width
+#+begin_src emacs-lisp
+  (setq neo-window-width 40)
+
+#+end_src
+
 
 * Editing tools
 ** Yas/Snippet

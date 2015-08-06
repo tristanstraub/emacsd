@@ -1,3 +1,23 @@
+* Startup window
+#+begin_src emacs-lisp
+  (defun welcome-screen ()
+    (switch-to-buffer "*Status*")
+    (erase-buffer)
+    (linum-mode 0)
+    (animate-string "...READY..."
+                    (/ (window-height) 2) (- (/ (window-width) 2) 12)))
+
+  (defun loading-screen ()
+    (switch-to-buffer "*Status*")
+
+    (erase-buffer)
+    (linum-mode 0)
+    (animate-string "...LOADING..."
+                    (/ (window-height) 2) (- (/ (window-width) 2) 12)))
+
+  (loading-screen)
+#+end_src
+
 * Environment
 ** Debugging
 
@@ -53,11 +73,45 @@
     (server-start))
 #+END_SRC
 
+** Backups
+#+begin_src emacs-lisp
+  (defvar dotfiles-dir nil)
+  (setq dotfiles-dir (expand-file-name "./" "~/"))
+
+  ;; Don't clutter up directories with files~
+  (setq backup-directory-alist `(("." . ,(expand-file-name
+                                      (concat dotfiles-dir "backups")))))
+
+  ;; Don't clutter with #files either
+  (setq auto-save-file-name-transforms
+        `((".*" ,(expand-file-name (concat dotfiles-dir "backups")))))
+#+end_src
+
 ** Text
 
 #+begin_src emacs-lisp
   (setq tab-width 2)
   (setq-default indent-tabs-mode nil)
+#+end_src
+
+** Audio
+
+#+begin_src emacs-lisp
+  (defun raise-volume ()
+    (interactive)
+    (shell-command "amixer set Master 2+"))
+
+  (defun lower-volume ()
+    (interactive)
+    (shell-command "amixer set Master 2-"))
+#+end_src
+
+** Workgroups
+#+begin_src emacs-lisp
+  (ensure-package 'workgroups)
+  (setq wg-prefix-key (kbd "C-c w"))
+  (workgroups-mode 1)
+  (wg-load (expand-file-name "workgroups" "~/.emacs.d"))
 #+end_src
 
 * Look and feel
@@ -127,7 +181,6 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+end_src
 
-
 * Editing tools
 ** Yas/Snippet
 
@@ -151,6 +204,10 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
     ;; Run this as the last command, to prevent the popup of multiple possible "src" expansions
     (yas/initialize))
 
+          (add-hook 'org-mode-hook
+                    (lambda ()
+                      (org-set-local 'yas/trigger-key [tab])
+                      (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
   (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
@@ -189,6 +246,38 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+begin_src emacs-lisp
   (ensure-package 'iedit)
+#+end_src
+
+** Selective display
+
+#+begin_src emacs-lisp
+  (defvar ts/selective-display-level 0)
+  (defvar ts/selective-display-level-step 2)
+  (defvar ts/max-selective-display-level 6)
+
+  (make-local-variable 'ts/selective-display-level)
+
+  (defun ts/next-selective-display-level ()
+    (if (>= ts/selective-display-level ts/max-selective-display-level)
+       (setq ts/selective-display-level 0)
+       (incf ts/selective-display-level ts/selective-display-level-step))
+
+    (if (> ts/selective-display-level 0)
+        ts/selective-display-level))
+
+
+  (defun ts/toggle-selective-display ()
+    (interactive)
+    (set-selective-display (ts/next-selective-display-level)))
+
+  (defun ts/reset-selective-display ()
+    (interactive)
+    (setq ts/selective-display-level ts/max-selective-display-level)
+    (set-selective-display (ts/next-selective-display-level)))
+
+  (global-set-key (kbd "C-`") 'ts/toggle-selective-display)
+  (global-set-key (kbd "C-1") 'ts/reset-selective-display)
+
 #+end_src
 
 * Searching
@@ -336,7 +425,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (defun coffee-on-file ()
     (interactive)
     (run-shell-command-in-dir (file-name-directory (buffer-file-name))
-      (concat "coffee " (shell-quote-argument buffer-file-name))))
+      (concat "NODE_ENV=development coffee " (shell-quote-argument buffer-file-name))))
 
   (defun coffee-compile-buffer-or-region ()
     (interactive)
@@ -370,6 +459,14 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
         (display-buffer buffer))))
 #+END_SRC
 
+#+begin_src emacs-lisp
+  (ensure-package 'flymake-coffee)
+  (add-hook 'coffee-mode-hook 'flymake-coffee-load)
+  (setq flymake-coffee-coffeelint-configuration-file
+    "/home/tristan/.cslint-config.json")
+  (ensure-package 'flymake-cursor)
+#+end_src
+
 ** Ruby
 #+begin_src emacs-lisp
   (ensure-package 'inf-ruby)
@@ -390,6 +487,9 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 ** org-babel
 #+begin_src emacs-lisp
   (setq org-confirm-babel-evaluate nil)
+
+  ;; Get syntax highlighting within begin-src blocks
+  (setq org-src-fontify-natively t)
 
   (setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
     (org-babel-do-load-languages
@@ -432,13 +532,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
       (let* ((root (ts/project-root))
              (filename (buffer-file-name))
              (relative-test-filename (file-relative-name filename root))
-             (test-to-run (if current-prefix-arg
-                              (or previous-test relative-test-filename)
-                              relative-test-filename)))
+             (test-to-run relative-test-filename))
 
         (setq previous-test relative-test-filename)
 
-        (run-shell-command-in-dir root (concat "TZ=utc NODE_ENV=test " root "node_modules/.bin/mocha --bail "
+        (run-shell-command-in-dir root (concat "TZ=utc SELENIUM_HOST=localhost:4444 NODE_ENV=test " root "node_modules/.bin/mocha --bail "
                                                (if watchp " -w " "")
                                                test-to-run
 
@@ -477,6 +575,53 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
   (add-hook 'clojure-mode-hook 'clojure-mode-settings)
 #+end_src
+* RSS
+#+begin_src emacs-lisp
+  (ensure-package 'elfeed)
+#+end_src
+
+* Browser
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function 'eww-browse-url)
+#+end_src
+
+* Web
+
+#+begin_src emacs-lisp
+
+(defvar-local endless/display-images t)
+
+(defun endless/toggle-image-display ()
+  "Toggle images display on current buffer."
+  (interactive)
+  (setq endless/display-images
+        (null endless/display-images))
+  (endless/backup-display-property endless/display-images))
+
+(defun endless/backup-display-property (invert &optional object)
+  "Move the 'display property at POS to 'display-backup.
+Only applies if display property is an image.
+If INVERT is non-nil, move from 'display-backup to 'display
+instead.
+Optional OBJECT specifies the string or buffer. Nil means current
+buffer."
+  (let* ((inhibit-read-only t)
+         (from (if invert 'display-backup 'display))
+         (to (if invert 'display 'display-backup))
+         (pos (point-min))
+         left prop)
+    (while (and pos (/= pos (point-max)))
+      (if (get-text-property pos from object)
+          (setq left pos)
+        (setq left (next-single-property-change pos from object)))
+      (if (or (null left) (= left (point-max)))
+          (setq pos nil)
+        (setq prop (get-text-property left from object))
+        (setq pos (or (next-single-property-change left from object)
+                      (point-max)))
+        (when (eq (car prop) 'image)
+          (add-text-properties left pos (list from nil to prop) object))))))
+#+end_src
 
 * Keys
 
@@ -500,4 +645,27 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
     (local-set-key (kbd "C-c j") 'run-jshint-coffee))
 
   (add-hook 'coffee-mode-hook 'setup-jshint-coffee)
+
+  (defun setup-eww ()
+    (local-set-key (kbd "C-c i") 'endless/toggle-image-display))
+
+  (add-hook 'eww-mode-hook 'setup-eww)
+
+  ;; (global-set-key (kbd "<XF86AudioRaiseVolume>") 'raise-volume)
+  ;; (global-set-key (kbd "<XF86AudioLowerVolume>") 'lower-volume)
+
+
+#+end_src
+* Welcome
+
+#+begin_src emacs-lisp
+  ;; disabled to test wg-load
+  (setq inhibit-splash-screen t)
+  ;;(welcome-screen)
+#+end_src
+* Desktop
+#+begin_src emacs-lisp
+  ;; commented out because workgroups may be a better option
+  ;;(desktop-read)
+  ;;(desktop-save-mode 1)
 #+end_src

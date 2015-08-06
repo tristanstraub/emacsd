@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: test
+# key: test
+# expand-env: ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
+# --
+sinon = require 'sinon'
+expect = require 'expect.js'
+
+$1 = require '$1'
+
+describe '$2', ->
+  describe '$3', ->
+    sandbox = null
+    beforeEach -> sandbox = sinon.sandbox.create()
+    afterEach -> sandbox.restore()
+
+    test = (assertionsFn) ->
+      fakes = getFakes sandbox
+
+      $4 = new $1 fakes
+      ${4:applier}.$5 fakes, (err) ->
+        assertionsFn err, if !err? then fakes
+
+getFakes = (sandbox) ->
+  return {
+    $6
+  }
+$0

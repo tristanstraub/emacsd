@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: mm
+# key: mm
+# --
+require('mm').$0

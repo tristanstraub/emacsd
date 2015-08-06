@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: reqtest
+# key: rq
+# expand-env: ((file (file-name-sans-extension (relative-server-implementation-for (buffer-file-name)))))
+# --
+`(camelcase (file-name-nondirectory file))` = require '`file`'
+$0

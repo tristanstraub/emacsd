@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: str
+# key: str
+# expand-env: ((yas-wrap-around-region 'nil))
+# --
+JSON.stringify $1, null, 2$0

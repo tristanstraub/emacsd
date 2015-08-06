@@ -64,6 +64,11 @@
   (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 #+END_SRC
+** Backups
+#+begin_src emacs-lisp
+  (setq backup-directory-alist `(("." . "~/.saves")))
+#+end_src
+
 
 ** Server
 

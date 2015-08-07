@@ -119,6 +119,11 @@
   (wg-load (expand-file-name "workgroups" "~/.emacs.d"))
 #+end_src
 
+** Ace-window for quick window switching
+#+begin_src emacs-lisp
+  (ensure-package 'ace-window)
+#+end_src
+
 * Look and feel
 ** Theme
 
@@ -630,7 +635,10 @@ buffer."
 
 * Keys
 
-** Global bindings
+#+begin_src emacs-lisp
+  (ensure-package 'unbound)
+#+end_src
+
 
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
@@ -658,7 +666,7 @@ buffer."
 
   ;; (global-set-key (kbd "<XF86AudioRaiseVolume>") 'raise-volume)
   ;; (global-set-key (kbd "<XF86AudioLowerVolume>") 'lower-volume)
-
+  (global-set-key (kbd "M-0") 'ace-window)
 
 #+end_src
 * Welcome

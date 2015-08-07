@@ -482,6 +482,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'inf-ruby)
 #+end_src
 
+** Gherkin
+
+#+begin_src emacs-lisp
+  (ensure-package 'cucumber)
+#+end_src
+
 * Agenda
 
 #+begin_src emacs-lisp

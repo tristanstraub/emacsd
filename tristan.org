@@ -552,7 +552,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
         (setq previous-test relative-test-filename)
 
-        (run-shell-command-in-dir root (concat "TZ=utc SELENIUM_HOST=localhost:4444 NODE_ENV=test " root "node_modules/.bin/mocha --bail "
+        (run-shell-command-in-dir root (concat "TZ=utc SELENIUM_REATTACH=1 SELENIUM_HOST=localhost:4444 NODE_ENV=test " root "node_modules/.bin/mocha --bail "
                                                (if watchp " -w " "")
                                                test-to-run
 

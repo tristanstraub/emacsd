@@ -37,7 +37,12 @@
                                 :description "Replacement color themes."
                                 :type github
                                 :pkgname "emacs-jp/replace-colorthemes")
-                         ))
+                         (:name js-lookup
+                                :description "Lookup javascript symbols on MDN"
+                                :type github
+                                :pkgname "skeeto/js-lookup")
+                         )
+        )
 
   (setq el-get-verbose t)
 #+end_src
@@ -486,6 +491,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+begin_src emacs-lisp
   (ensure-package 'cucumber)
+#+end_src
+
+** js-lookup
+#+begin_src emacs-lisp
+  (ensure-package 'js-lookup)
 #+end_src
 
 * Agenda

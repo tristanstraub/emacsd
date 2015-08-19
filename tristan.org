@@ -517,6 +517,12 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'json-reformat)
 #+end_src
 
+** clojure
+#+begin_src emacs-lisp
+  (ensure-package 'inflections)
+  (ensure-package 'clj-refactor)
+#+end_src
+
 * Agenda
 
 #+begin_src emacs-lisp

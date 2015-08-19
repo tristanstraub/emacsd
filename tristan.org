@@ -74,7 +74,6 @@
   (setq backup-directory-alist `(("." . "~/.saves")))
 #+end_src
 
-
 ** Server
 
 #+BEGIN_SRC emacs-lisp
@@ -129,6 +128,10 @@
   (ensure-package 'ace-window)
 #+end_src
 
+** show matching parenthesis
+#+begin_src emacs-lisp
+  (show-paren-mode 1)
+#+end_src
 * Look and feel
 ** Theme
 
@@ -295,6 +298,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+end_src
 
+** FOlding
+#+begin_src emacs-lisp
+  (ensure-package 'yafolding)
+#+end_src
+
 * Searching
 ** Bookmarks+
 #+begin_src emacs-lisp
@@ -420,12 +428,13 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (require 'coffee-mode)
 
   (defun coffee-custom ()
-      "coffee-mode-hook"
-      ;;(local-set-key (kbd "C-c C-r") 'coffee-compile-region)
-      (local-set-key (kbd "<backtab>") 'coffee-indent-shift-left)
-      (local-set-key (kbd "C-c C-c") 'coffee-compile-buffer-or-region)
-       (set (make-local-variable 'tab-width) 2)
-       (set (make-local-variable 'indent-tabs-mode) nil))
+    "coffee-mode-hook"
+    ;;(local-set-key (kbd "C-c C-r") 'coffee-compile-region)
+    (local-set-key (kbd "<backtab>") 'coffee-indent-shift-left)
+    (local-set-key (kbd "C-c C-c") 'coffee-compile-buffer-or-region)
+    (set (make-local-variable 'tab-width) 2)
+    (set (make-local-variable 'indent-tabs-mode) nil)
+    (yafolding-mode))
 
   (add-hook 'coffee-mode-hook
             '(lambda() (coffee-custom)))
@@ -433,20 +442,20 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (custom-set-variables '(coffee-tab-width 2))
 
   (defun run-shell-command-in-dir (dir command)
-      (message (concat "DIR:" dir " COMMAND: " command))
-      (let ((default-directory dir))
-        (async-shell-command command)))
+    (message (concat "DIR:" dir " COMMAND: " command))
+    (let ((default-directory dir))
+      (async-shell-command command)))
 
   (defun coffee-on-file ()
     (interactive)
     (run-shell-command-in-dir (file-name-directory (buffer-file-name))
-      (concat "NODE_ENV=development coffee " (shell-quote-argument buffer-file-name))))
+                              (concat "NODE_ENV=development coffee " (shell-quote-argument buffer-file-name))))
 
   (defun coffee-compile-buffer-or-region ()
     (interactive)
     (if (use-region-p)
-       (coffee-compile-region (region-beginning) (region-end))
-       (coffee-compile-buffer)))
+        (coffee-compile-region (region-beginning) (region-end))
+      (coffee-compile-buffer)))
 #+end_src
 
 #+BEGIN_SRC emacs-lisp
@@ -496,6 +505,16 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 ** js-lookup
 #+begin_src emacs-lisp
   (ensure-package 'js-lookup)
+#+end_src
+
+** javascript
+#+begin_src emacs-lisp
+  (ensure-package 'js2-mode)
+#+end_src
+
+** json
+#+begin_src emacs-lisp
+  (ensure-package 'json-reformat)
 #+end_src
 
 * Agenda
@@ -684,6 +703,12 @@ buffer."
   ;; (global-set-key (kbd "<XF86AudioLowerVolume>") 'lower-volume)
   (global-set-key (kbd "M-0") 'ace-window)
 
+  (defvar yafolding-mode-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
+      (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
+      (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
+      map))
 #+end_src
 * Welcome
 

@@ -70,3 +70,4 @@
  '(default ((t (:family "Monaco" :foundry "unknown" :slant normal :weight normal :height 128 :width normal))))
  '(mode-line ((t (:background "saddle brown" :foreground "gainsboro" :box (:line-width 1 :style released-button)))))
  '(mode-line-buffer-id ((t (:foreground "white" :weight bold)))))
+(put 'narrow-to-region 'disabled nil)

@@ -360,6 +360,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
   (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
 
+  ;; This gives me clj-refactor add dependency minibuffer narrowing - awesome!
   (ido-ubiquitous-mode 1)
 
   (defun ts/ido-forward ()

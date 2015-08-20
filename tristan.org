@@ -336,10 +336,31 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 ** Ido-menu
 
 #+begin_src emacs-lisp
-  (ensure-package 'idomenu)
+  (ensure-package 'ido)
+  ;;(ensure-package 'idomenu)
+  (ensure-package 'flx)
+  (ensure-package 'ido-ubiquitous)
+
+  (flx-ido-mode 1)
+
+  (ensure-package 'ido-vertical-mode)
+  (ido-vertical-mode)
+
   (ido-mode 1)
   (setq ido-enable-flex-matching t)
+  (setq ido-use-faces nil)
+
+  (setq ido-enable-prefix nil
+      ido-enable-flex-matching t
+      ido-case-fold nil
+      ido-auto-merge-work-directories-length -1
+      ido-create-new-buffer 'always
+      ido-use-filename-at-point nil
+      ido-max-prospects 10)
+
   (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+
+  (ido-ubiquitous-mode 1)
 
   (defun ts/ido-forward ()
     (interactive)
@@ -349,12 +370,14 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
     (interactive)
     (ido-prev-match))
 
+
   (defun ts/ido-define-keys () ;; C-n/p is more intuitive in vertical layout
     (define-key ido-completion-map (kbd "C-n") 'ts/ido-forward)
     (define-key ido-completion-map (kbd "C-p") 'ts/ido-backwards))
   (add-hook 'ido-setup-hook 'ts/ido-define-keys)
 
   (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
+  (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
 #+end_src
 
 ** helm
@@ -682,39 +705,47 @@ buffer."
 
 
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-x g") 'magit-status)
-  (global-set-key (kbd "M-t") 'ts/helm-cmd-t)
-  (global-set-key (kbd "C-c C-y") 'ts/grep-project)
-  (global-set-key (kbd "C-c r") 'revert-buffer)
-  (global-set-key (kbd "M-`") 'neotree-of-current-project)
-  (global-set-key (kbd "C-c C-f") 'neotree-find)
-  (global-set-key (kbd "C-. f") 'ffap)
-  (global-set-key (kbd "C-=") 'er/expand-region)
-  (define-key global-map (kbd "C-0") 'ace-jump-mode)
-  (global-set-key (kbd "M-1") 'coffee-on-file)
-  (global-set-key (kbd "C-c m") 'run-mocha)
-  (key-chord-define-global "DF" 'backtab)
+    (global-set-key (kbd "C-x g") 'magit-status)
+    (global-set-key (kbd "M-t") 'ts/helm-cmd-t)
+    (global-set-key (kbd "C-c C-y") 'ts/grep-project)
+    (global-set-key (kbd "C-c r") 'revert-buffer)
+    (global-set-key (kbd "M-`") 'neotree-of-current-project)
+    (global-set-key (kbd "C-c C-f") 'neotree-find)
+    (global-set-key (kbd "C-. f") 'ffap)
+    (global-set-key (kbd "C-=") 'er/expand-region)
+    (define-key global-map (kbd "C-0") 'ace-jump-mode)
+    (global-set-key (kbd "M-1") 'coffee-on-file)
+    (global-set-key (kbd "C-c m") 'run-mocha)
+    (key-chord-define-global "DF" 'backtab)
 
-  (defun setup-jshint-coffee ()
-    (local-set-key (kbd "C-c j") 'run-jshint-coffee))
+    (defun setup-jshint-coffee ()
+      (local-set-key (kbd "C-c j") 'run-jshint-coffee))
 
-  (add-hook 'coffee-mode-hook 'setup-jshint-coffee)
+    (add-hook 'coffee-mode-hook 'setup-jshint-coffee)
 
-  (defun setup-eww ()
-    (local-set-key (kbd "C-c i") 'endless/toggle-image-display))
+    (defun setup-eww ()
+      (local-set-key (kbd "C-c i") 'endless/toggle-image-display))
 
-  (add-hook 'eww-mode-hook 'setup-eww)
+    (add-hook 'eww-mode-hook 'setup-eww)
 
-  ;; (global-set-key (kbd "<XF86AudioRaiseVolume>") 'raise-volume)
-  ;; (global-set-key (kbd "<XF86AudioLowerVolume>") 'lower-volume)
-  (global-set-key (kbd "M-0") 'ace-window)
+    ;; (global-set-key (kbd "<XF86AudioRaiseVolume>") 'raise-volume)
+    ;; (global-set-key (kbd "<XF86AudioLowerVolume>") 'lower-volume)
+    (global-set-key (kbd "M-0") 'ace-window)
 
-  (defvar yafolding-mode-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
-      (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
-      (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
-      map))
+    (defvar yafolding-mode-map
+      (let ((map (make-sparse-keymap)))
+        (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
+        (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
+        (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
+        map))
+
+  ;; TODO move non-key related stuff to Development
+  (defun my-clojure-mode-hook ()
+    (clj-refactor-mode 1)
+    (yas-minor-mode 1) ; for adding require/use/import
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+
+  (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
 #+end_src
 * Welcome
 

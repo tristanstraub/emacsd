@@ -27,24 +27,29 @@
 
 ** Packages
 #+begin_src emacs-lisp
-  (defun ensure-package (package)
-    (when (not (package-installed-p package))
-        (el-get 'sync package)
-        (require package nil t)))
+    (defun ensure-package (package)
+      (when (not (package-installed-p package))
+          (el-get 'sync package)
+          (require package nil t)))
 
-  (setq el-get-sources '(
-                         (:name replace-colorthemes
-                                :description "Replacement color themes."
-                                :type github
-                                :pkgname "emacs-jp/replace-colorthemes")
-                         (:name js-lookup
-                                :description "Lookup javascript symbols on MDN"
-                                :type github
-                                :pkgname "skeeto/js-lookup")
-                         )
-        )
+    (setq el-get-sources '(
+                           (:name replace-colorthemes
+                                  :description "Replacement color themes."
+                                  :type github
+                                  :pkgname "emacs-jp/replace-colorthemes")
+                           (:name js-lookup
+                                  :description "Lookup javascript symbols on MDN"
+                                  :type github
+                                  :pkgname "skeeto/js-lookup")
+                           (:name ido-at-point
+                                  :description "ido at point"
+                                  :type github
+                                  :pkgname "katspaugh/ido-at-point")
 
-  (setq el-get-verbose t)
+                           )
+          )
+
+    (setq el-get-verbose t)
 #+end_src
 
 ** Paths
@@ -336,49 +341,69 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 ** Ido-menu
 
 #+begin_src emacs-lisp
-  (ensure-package 'ido)
-  ;;(ensure-package 'idomenu)
-  (ensure-package 'flx)
-  (ensure-package 'ido-ubiquitous)
+    (ensure-package 'spinner)
 
-  (flx-ido-mode 1)
+    (ensure-package 'ido)
+    ;;(ensure-package 'idomenu)
+    (ensure-package 'flx)
+    (ensure-package 'ido-ubiquitous)
 
-  (ensure-package 'ido-vertical-mode)
-  (ido-vertical-mode)
+    (flx-ido-mode 1)
 
-  (ido-mode 1)
-  (setq ido-enable-flex-matching t)
-  (setq ido-use-faces nil)
+    (ensure-package 'ido-vertical-mode)
+    (ido-vertical-mode)
 
-  (setq ido-enable-prefix nil
-      ido-enable-flex-matching t
-      ido-case-fold nil
-      ido-auto-merge-work-directories-length -1
-      ido-create-new-buffer 'always
-      ido-use-filename-at-point nil
-      ido-max-prospects 10)
+    (ido-mode 1)
+    (setq ido-enable-flex-matching t)
+    (setq ido-use-faces nil)
 
-  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+    (setq ido-enable-prefix nil
+        ido-enable-flex-matching t
+        ido-case-fold nil
+        ido-auto-merge-work-directories-length -1
+        ido-create-new-buffer 'always
+        ido-use-filename-at-point nil
+        ido-max-prospects 10)
 
-  ;; This gives me clj-refactor add dependency minibuffer narrowing - awesome!
-  (ido-ubiquitous-mode 1)
+    (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
 
-  (defun ts/ido-forward ()
-    (interactive)
-    (ido-next-match))
+    ;; Ido at point (C-,)
+    (ensure-package 'ido-at-point)
+    (ido-at-point-mode)
 
-  (defun ts/ido-backwards ()
-    (interactive)
-    (ido-prev-match))
+    ;; This gives me clj-refactor add dependency minibuffer narrowing - awesome!
+    (ido-ubiquitous-mode 1)
+
+    (defun ts/ido-forward ()
+      (interactive)
+      (ido-next-match))
+
+    (defun ts/ido-backwards ()
+      (interactive)
+      (ido-prev-match))
 
 
-  (defun ts/ido-define-keys () ;; C-n/p is more intuitive in vertical layout
-    (define-key ido-completion-map (kbd "C-n") 'ts/ido-forward)
-    (define-key ido-completion-map (kbd "C-p") 'ts/ido-backwards))
-  (add-hook 'ido-setup-hook 'ts/ido-define-keys)
+    (defun ts/ido-define-keys () ;; C-n/p is more intuitive in vertical layout
+      (define-key ido-completion-map (kbd "C-n") 'ts/ido-forward)
+      (define-key ido-completion-map (kbd "C-p") 'ts/ido-backwards))
+    (add-hook 'ido-setup-hook 'ts/ido-define-keys)
 
-  (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
-  (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
+    (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
+    (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
+
+  ;; not sure i need this. am trying to figure out how clj-refactor can auto expand requires
+  ;; ;; Fix ido-ubiquitous for newer packages
+  ;; (defmacro ido-ubiquitous-use-new-completing-read (cmd package)
+  ;;   `(eval-after-load ,package
+  ;;      '(defadvice ,cmd (around ido-ubiquitous-new activate)
+  ;;         (let ((ido-ubiquitous-enable-compatibility nil))
+  ;;           ad-do-it))))
+
+  ;; (ido-ubiquitous-use-new-completing-read webjump 'webjump)
+  ;; (ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
+  ;; (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
+
+
 #+end_src
 
 ** helm
@@ -747,6 +772,8 @@ buffer."
     (cljr-add-keybindings-with-prefix "C-c C-m"))
 
   (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
+
+  (global-set-key (kbd "C-,") 'completion-at-point)
 #+end_src
 * Welcome
 

@@ -146,6 +146,16 @@
   (setq guide-key/popup-window-position 'bottom)
 #+end_src
 
+** multiple cursors
+#+begin_src emacs-lisp
+  (ensure-package 'multiple-cursors)
+#+end_src
+
+** delsel
+#+begin_src emacs-lisp
+  (ensure-package 'delsel)
+#+end_src
+
 * Look and feel
 ** Theme
 

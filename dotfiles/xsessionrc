@@ -1,0 +1,21 @@
+#!/bin/bash
+source .profile
+xrandr --auto --output HDMI-0 --mode 2560x1440 --left-of DisplayPort-0
+xrandr --auto --output DisplayPort-0 --mode 2560x1440 --right-of HDMI-0
+eval $(gpg-agent --daemon)
+eval $(ssh-agent)
+eval $(gnome-keyring-daemon --start)
+export GNOME_KEYRING_SOCKET
+export GNOME_KEYRING_PID
+stalonetray &
+$HOME/.cabal/bin/xmobar &
+xfce4-volumed &
+eval $(dbus-launch --exit-with-session xmonad)
+export DBUS_SESSION_BUS_ADDRESS
+export DBUS_SESSION_BUS_PID
+
+xinput set-prop "Wacom Intuos Pro M Pen stylus" --type=float "Coordinate Transformation Matrix" 0.5 0 0 0 1 0 0 0 1
+xinput set-prop "Wacom Intuos Pro M Pen eraser" --type=float "Coordinate Transformation Matrix" 0.5 0 0 0 1 0 0 0 1
+xinput set-prop "Wacom Intuos Pro M Pen cursor" --type=float "Coordinate Transformation Matrix" 0.5 0 0 0 1 0 0 0 1
+xinput set-prop "Wacom Intuos Pro M Pen pad" --type=float "Coordinate Transformation Matrix" 0.5 0 0 0 1 0 0 0 1
+xinput set-prop "Wacom Intuos Pro M Finger touch" --type=float "Coordinate Transformation Matrix" 0.5 0 0 0 1 0 0 0 1

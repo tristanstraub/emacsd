@@ -7,4 +7,5 @@
                       :output-dir "target/classes/public/out"
                       :optimizations :none
                       :recompile-dependents true
-                      :source-map true}}]}
+                      :source-map true
+                      :asset-path "out"}}]}

@@ -207,6 +207,13 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-auto-revert-mode 1)
 #+end_src
 
+** svg-modeline
+#+begin_src emacs-lisp
+  (ensure-package 'svg-mode-line-themes)
+  ;; Looks good, but doesnt show me what I need, yet
+  ;;(load-file (expand-file-name "site-lisp/ocodo-svg-mode-line.el" init-dir))
+#+end_src
+
 ** COMMENT Scrolling
 
 #+begin_src emacs-lisp
@@ -589,6 +596,8 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 #+begin_src emacs-lisp
   (ensure-package 'inflections)
   (ensure-package 'clj-refactor)
+  (load-file (expand-file-name "site-lisp/clj-autotest.el" init-dir))
+  (require 'clj-autotest)
 #+end_src
 
 * Agenda

@@ -598,6 +598,10 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'clj-refactor)
   (load-file (expand-file-name "site-lisp/clj-autotest.el" init-dir))
   (require 'clj-autotest)
+
+    (global-set-key (kbd "M-r") 'move-to-window-line-top-bottom)
+
+
 #+end_src
 
 * Gnus

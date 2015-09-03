@@ -600,6 +600,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (require 'clj-autotest)
 #+end_src
 
+* Gnus
+#+begin_src emacs-lisp
+(setq gnus-select-method '(nntp "news.gmane.org"))
+#+end_src
+
 * Agenda
 
 #+begin_src emacs-lisp

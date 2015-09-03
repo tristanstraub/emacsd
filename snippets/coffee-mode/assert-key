@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: assert-key
+# key: ass
+# --
+assert $1, '$1 is required'$0

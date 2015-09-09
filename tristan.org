@@ -529,7 +529,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (defun coffee-on-file ()
     (interactive)
     (run-shell-command-in-dir (file-name-directory (buffer-file-name))
-                              (concat "NODE_ENV=development coffee " (shell-quote-argument buffer-file-name))))
+                              (concat "NODE_ENV=development coffee --nodejs --harmony-proxies " (shell-quote-argument buffer-file-name))))
 
   (defun coffee-compile-buffer-or-region ()
     (interactive)
@@ -678,7 +678,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
         (setq previous-test relative-test-filename)
 
-        (run-shell-command-in-dir root (concat "TZ=utc SELENIUM_REATTACH=1 SELENIUM_HOST=localhost:4444 NODE_ENV=test " root "node_modules/.bin/mocha --bail "
+        (run-shell-command-in-dir root (concat "TZ=utc SELENIUM_REATTACH=1 SELENIUM_HOST=localhost:4444 NODE_ENV=test " root "node_modules/.bin/mocha --bail --harmony_proxies "
                                                (if watchp " -w " "")
                                                test-to-run
 

@@ -230,6 +230,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+end_src
 
+** hlline
+#+begin_src emacs-lisp
+(global-hl-line-mode t)
+#+end_src
+
 * Editing tools
 ** Yas/Snippet
 

@@ -1,0 +1,16 @@
+xrandr --output DP1 --mode 2560x1440 --primary
+xrandr --output DP2 --left-of DP1 --mode 1920x1080 --rotate left
+xrandr --output eDP1 --mode 1920x1080 --right-of DP1
+
+stalonetray &
+nm-applet &
+~/.cabal/bin/xmobar &
+xfce4-power-manager &
+synclient PalmDetect=1
+synclient PalmMinWidth=8
+synclient PalmMinZ=100
+
+DEVICE="SynPS/2 Synaptics TouchPad"
+xinput --set-prop "$DEVICE" "Device Accel Profile" 6
+xinput --set-prop "$DEVICE" "Device Accel Constant Deceleration" 12
+xinput --set-prop "$DEVICE" "Device Accel Velocity Scaling" 20

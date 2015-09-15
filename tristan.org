@@ -156,7 +156,13 @@
   (ensure-package 'delsel)
 #+end_src
 
+** wgrep
+#+begin_src emacs-lisp
+(ensure-package 'wgrep)
+#+end_src
+
 * Look and feel
+
 ** Theme
 
 #+begin_src emacs-lisp

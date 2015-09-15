@@ -178,6 +178,25 @@
 
 #+end_src
 
+** Faces
+#+begin_src emacs-lisp
+;; face to prevent global-hl-line-mode interfering with iedit face
+(defface highlight-iedit
+  '((((class color) (min-colors 88) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 88) (background dark))
+     :background "darkolivegreen")
+    (((class color) (min-colors 16) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 16) (background dark))
+     :background "darkolivegreen")
+    (((class color) (min-colors 8))
+     :background "green" :foreground "black")
+    (t :inverse-video t))
+  "Basic face for highlighting."
+  :group 'basic-faces)
+#+end_src
+
 ** Line numbers
 #+begin_src emacs-lisp
   (global-linum-mode 1)
@@ -236,9 +255,9 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+end_src
 
-** hlline
+** hlline -- Highlight current cursor row
 #+begin_src emacs-lisp
-(global-hl-line-mode t)
+  (global-hl-line-mode t)
 #+end_src
 
 * Editing tools

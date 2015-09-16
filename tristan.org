@@ -137,10 +137,10 @@
 #+begin_src emacs-lisp
   (show-paren-mode 1)
 #+end_src
-** guide key
+** [guide key] Describes key bindings
 #+begin_src emacs-lisp
   (ensure-package 'guide-key)
-  (setq guide-key/guide-key-sequence '("C-x"))
+  (setq guide-key/guide-key-sequence '("C-x" "C-c w"))
   (guide-key-mode 1)
   (setq guide-key/recursive-key-sequence-flag t)
   (setq guide-key/popup-window-position 'bottom)

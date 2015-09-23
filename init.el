@@ -43,6 +43,7 @@
  '(elfeed-feeds
    (quote
     ("http://rss.slashdot.org/Slashdot/slashdotMain" "https://slashdot.org/rss" "https://lobste.rs/rss" "https://news.ycombinator.com/rss")))
+ '(iedit-occurrence-face (quote highlight-iedit))
  '(safe-local-variable-values
    (quote
     ((eval setq-local org-babel-default-header-args:sql

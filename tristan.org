@@ -41,6 +41,12 @@
                                   :description "Lookup javascript symbols on MDN"
                                   :type github
                                   :pkgname "skeeto/js-lookup")
+
+                           (:name swiper
+                                  :description "ido at point"
+                                  :type github
+                                  :pkgname "abo-abo/swiper")
+
                            (:name ido-at-point
                                   :description "ido at point"
                                   :type github
@@ -394,7 +400,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
                   )))
 #+end_src
 
-** Ido-menu
+** COMMENT Ido-menu
 
 #+begin_src emacs-lisp
     (ensure-package 'spinner)
@@ -460,6 +466,14 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   ;; (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
 
 
+#+end_src
+
+** ivy/swiper
+
+#+begin_src emacs-lisp
+(ensure-package 'swiper)
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
 #+end_src
 
 ** helm
@@ -795,6 +809,16 @@ buffer."
 #+begin_src emacs-lisp
   (ensure-package 'unbound)
 #+end_src
+
+** Swiper
+
+#+begin_src emacs-lisp
+(global-set-key "\C-s" 'swiper)
+(global-set-key "\C-r" 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+;;(global-set-key [f6] 'ivy-resume)
+#+end_src
+
 
 
 #+begin_src emacs-lisp

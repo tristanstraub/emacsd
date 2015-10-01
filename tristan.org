@@ -810,7 +810,13 @@ buffer."
   (ensure-package 'unbound)
 #+end_src
 
-** Swiper
+** avy keys
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-)") 'avy-goto-line)
+#+end_src
+
+** Swiper keys
 
 #+begin_src emacs-lisp
 (global-set-key "\C-s" 'swiper)
@@ -819,7 +825,7 @@ buffer."
 ;;(global-set-key [f6] 'ivy-resume)
 #+end_src
 
-
+** Misc keys
 
 #+begin_src emacs-lisp
     (global-set-key (kbd "C-x g") 'magit-status)
@@ -871,6 +877,7 @@ buffer."
 
   (global-set-key (kbd "C-,") 'completion-at-point)
 #+end_src
+
 * Welcome
 
 #+begin_src emacs-lisp

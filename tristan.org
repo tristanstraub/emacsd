@@ -1,3 +1,9 @@
+* Startup packages
+#+BEGIN_SRC emacs-lisp
+  (ensure-package 'seq)
+  (ensure-package 'swiper)
+#+END_SRC
+
 * Startup window
 #+begin_src emacs-lisp
   (defun welcome-screen ()
@@ -27,35 +33,7 @@
 
 ** Packages
 #+begin_src emacs-lisp
-    (defun ensure-package (package)
-      (when (not (package-installed-p package))
-          (el-get 'sync package)
-          (require package nil t)))
 
-    (setq el-get-sources '(
-                           (:name replace-colorthemes
-                                  :description "Replacement color themes."
-                                  :type github
-                                  :pkgname "emacs-jp/replace-colorthemes")
-                           (:name js-lookup
-                                  :description "Lookup javascript symbols on MDN"
-                                  :type github
-                                  :pkgname "skeeto/js-lookup")
-
-                           (:name swiper
-                                  :description "ido at point"
-                                  :type github
-                                  :pkgname "abo-abo/swiper")
-
-                           (:name ido-at-point
-                                  :description "ido at point"
-                                  :type github
-                                  :pkgname "katspaugh/ido-at-point")
-
-                           )
-          )
-
-    (setq el-get-verbose t)
   (ensure-package 'hydra)
 #+end_src
 
@@ -144,13 +122,14 @@
 #+begin_src emacs-lisp
   (show-paren-mode 1)
 #+end_src
-** [guide key] Describes key bindings
+** COMMENT [guide key] Describes key bindings
 #+begin_src emacs-lisp
-  (ensure-package 'guide-key)
-  (setq guide-key/guide-key-sequence '("C-x" "C-c w"))
-  (guide-key-mode 1)
-  (setq guide-key/recursive-key-sequence-flag t)
-  (setq guide-key/popup-window-position 'bottom)
+  ;; (ensure-package 'guide-key)
+  ;; (setq guide-key/guide-key-sequence '("C-x" "C-c w" "C-c C-m"))
+  ;; ;; not working with ecb
+  ;; (guide-key-mode nil)
+  ;; (setq guide-key/recursive-key-sequence-flag t)
+  ;; (setq guide-key/popup-window-position 'bottom)
 #+end_src
 
 ** multiple cursors
@@ -167,6 +146,31 @@
 #+begin_src emacs-lisp
 (ensure-package 'wgrep)
 #+end_src
+
+** my-other-window
+#+begin_src emacs-lisp
+(require 'cl)
+(defvar avoid-window-regexp "^.*eshell.*$")
+(setq avoid-window-regexp (regexp-quote "*eshell*"))
+
+(defun my-other-window ()
+  "Similar to 'other-window, only try to avoid windows whose buffers match avoid-window-regexp"
+  (interactive)
+  (let* ((window-list (delq (selected-window) (window-list)))
+         (filtered-window-list (remove-if
+                                (lambda (w)
+                                  (string-match-p avoid-window-regexp (buffer-name (window-buffer w))))
+                                window-list)))
+    (if filtered-window-list
+        (select-window (car filtered-window-list))
+      (and window-list
+           (select-window (car window-list))))))
+
+#+end_src
+
+#+RESULTS:
+: my-other-window
+
 
 * Look and feel
 
@@ -239,12 +243,27 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (global-auto-revert-mode 1)
 #+end_src
 
-** svg-modeline
+** modeline
+*** File path
+#+begin_src emacs-lisp
+  ;;(setq uniquify-buffer-name-style 'forward)
+  ;;(require 'uniquify)
+
+(defun add-mode-line-dirtrack ()
+    "When editing a file, show the last 2 directories of the current path in the mode line."
+    (add-to-list 'mode-line-buffer-identification
+                 '(:eval (substring default-directory
+                                    (+ 1 (string-match "/[^/]+/[^/]+/$" default-directory)) nil))))
+  (add-hook 'find-file-hook 'add-mode-line-dirtrack)
+#+end_src
+
+*** svg-modeline
 #+begin_src emacs-lisp
   (ensure-package 'svg-mode-line-themes)
   ;; Looks good, but doesnt show me what I need, yet
   ;;(load-file (expand-file-name "site-lisp/ocodo-svg-mode-line.el" init-dir))
 #+end_src
+
 
 ** COMMENT Scrolling
 
@@ -294,7 +313,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
                     (lambda ()
                       (org-set-local 'yas/trigger-key [tab])
                       (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
-  (add-hook 'org-mode-hook #'yas/org-setup)
+;;  (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
 ** Expand region
@@ -480,6 +499,18 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 (ensure-package 'swiper)
 (ivy-mode 1)
 (setq ivy-use-virtual-buffers t)
+
+(defun ivy-dired ()
+  (interactive)
+  (if ivy--directory
+      (ivy-quit-and-run
+       (dired ivy--directory)
+       (when (re-search-forward
+              (regexp-quote
+               (substring ivy--current 0 -1)) nil t)
+         (goto-char (match-beginning 0))))
+    (user-error
+     "Not completing files currently")))
 #+end_src
 
 ** helm
@@ -654,6 +685,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 #+end_src
 
+** ecb
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'ecb)
+#+END_SRC
+
 * Gnus
 #+begin_src emacs-lisp
 (setq gnus-select-method '(nntp "news.gmane.org"))
@@ -679,18 +715,20 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (setq org-src-fontify-natively t)
 
   (setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((R . t)
-       (emacs-lisp . t)
-       (ditaa . t)
-       (ruby . t)
-       (sh . t)
-       (perl . t)
-       (python . t)
-       (plantuml . t)
-       (js . t)
-       (sql . t)))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t)
+     (emacs-lisp . t)
+     (ditaa . t)
+     (ruby . t)
+     (sh . t)
+     (perl . t)
+     (python . t)
+     (plantuml . t)
+     (js . t)
+     (sql . t)
+     (clojure . t)))
 
   (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
@@ -747,6 +785,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 *** Cider
 
 #+begin_src emacs-lisp
+  (setq org-babel-clojure-backend 'cider)
   (ensure-package 'cider)
 
   (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
@@ -822,12 +861,15 @@ buffer."
 (global-set-key "\C-s" 'swiper)
 (global-set-key "\C-r" 'swiper)
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
+(define-key ivy-minibuffer-map (kbd "C-d") 'ivy-dired)
 ;;(global-set-key [f6] 'ivy-resume)
 #+end_src
 
 
-
+** misc
 #+begin_src emacs-lisp
+    (global-set-key (kbd "C-x o") 'other-window)
+
     (global-set-key (kbd "C-x g") 'magit-status)
     (global-set-key (kbd "M-t") 'ts/helm-cmd-t)
     (global-set-key (kbd "C-c C-y") 'ts/grep-project)
@@ -878,16 +920,17 @@ buffer."
   (global-set-key (kbd "C-,") 'completion-at-point)
 
 #+end_src
-* Welcome
-
-#+begin_src emacs-lisp
-  ;; disabled to test wg-load
-  (setq inhibit-splash-screen t)
-  ;;(welcome-screen)
-#+end_src
 * Desktop
 #+begin_src emacs-lisp
   ;; commented out because workgroups may be a better option
   ;;(desktop-read)
   ;;(desktop-save-mode 1)
+#+end_src
+* Welcome
+
+#+begin_src emacs-lisp
+  ;; disabled to test wg-load
+  (setq inhibit-splash-screen t)
+  (message "Done!")
+  ;;(welcome-screen)
 #+end_src

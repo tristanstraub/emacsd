@@ -124,12 +124,12 @@
 #+end_src
 ** COMMENT [guide key] Describes key bindings
 #+begin_src emacs-lisp
-  ;; (ensure-package 'guide-key)
-  ;; (setq guide-key/guide-key-sequence '("C-x" "C-c w" "C-c C-m"))
-  ;; ;; not working with ecb
-  ;; (guide-key-mode nil)
-  ;; (setq guide-key/recursive-key-sequence-flag t)
-  ;; (setq guide-key/popup-window-position 'bottom)
+  (ensure-package 'guide-key)
+  (setq guide-key/guide-key-sequence '("C-x" "C-c w" "C-c C-m" "C-c p"))
+  ;; not working with ecb
+  (guide-key-mode nil)
+  (setq guide-key/recursive-key-sequence-flag t)
+  (setq guide-key/popup-window-position 'bottom)
 #+end_src
 
 ** multiple cursors
@@ -170,7 +170,6 @@
 
 #+RESULTS:
 : my-other-window
-
 
 * Look and feel
 
@@ -220,6 +219,7 @@
   (setq whitespace-style (quote (tabs spaces)))
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
   (global-whitespace-mode 1)
+
 #+end_src
 
 ** GUI
@@ -283,10 +283,37 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 ** hlline -- Highlight current cursor row
 #+begin_src emacs-lisp
-  (global-hl-line-mode t)
+  (global-hl-line-mode 0)
 #+end_src
 
+** rainbow mode
+#+BEGIN_SRC emacs-lisp
+  ;; (ensure-package 'rainbow-mode)
+  ;; (add-hook 'clojure-mode (lambda () (rainbow-mode t)))
+
+#+END_SRC
+
+#+END_SRC
+
 * Editing tools
+** image dired
+#+BEGIN_SRC emacs-lisp
+(setq image-dired-cmd-create-thumbnail-options "%p -size %wx%h \"%f\" -resize \"%wx%h>\" jpeg:\"%t\"") ;; remove -strip option
+(setq image-dired-cmd-create-temp-image-options "%p -size %wx%h \"%f\" -resize \"%wx%h>\" jpeg:\"%t\"");; remove -strip option
+;;(setq image-dired-external-viewer "/usr/bin/xzgv");; a viewer I like, just in case you're interested
+#+END_SRC
+
+#+RESULTS:
+: %p -size %wx%h "%f" -resize "%wx%h>" jpeg:"%t"
+
+** image+
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'image+)
+#+END_SRC
+
+#+RESULTS:
+: image+
+
 ** Yas/Snippet
 
 #+BEGIN_SRC emacs-lisp
@@ -425,6 +452,15 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
                   )))
 #+end_src
 
+** Projectile
+#+BEGIN_SRC emacs-lisp
+  (ensure-package 'projectile)
+  (projectile-global-mode)
+  (setq projectile-indexing-method 'native)
+  ;;(setq projectile-require-project-root nil)
+  ;;(setq projectile-project-root-files nil)
+#+END_SRC
+
 ** COMMENT Ido-menu
 
 #+begin_src emacs-lisp
@@ -520,6 +556,9 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
     (ensure-package 'helm-cmd-t)
     (ensure-package 'helm-ls-git)
     (ensure-package 'helm-git-grep)
+    (require 'helm-projectile)
+    (helm-projectile-on)
+
     (require 'helm-config)
 
     (defvar ts/helm-cmd-t nil)
@@ -544,7 +583,76 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
       (let ((helm-ff-transformer-show-only-basename nil))
         (helm-other-buffer ts/helm-sources "*helm*")))
 
+
+
 #+end_src
+
+*** custom helm-projectile-grep
+
+#+BEGIN_SRC emacs-lisp
+  (defun helm-projectile-grep-or-ack (&optional dir use-ack-p ack-ignored-pattern ack-executable)
+    "Perform helm-grep at project root.
+  DIR directory where to search
+  USE-ACK-P indicates whether to use ack or not.
+  ACK-IGNORED-PATTERN is a file regex to exclude from searching.
+  ACK-EXECUTABLE is the actual ack binary name.
+  It is usually \"ack\" or \"ack-grep\".
+  If it is nil, or ack/ack-grep not found then use default grep command."
+    (let* ((default-directory (or dir (projectile-project-root)))
+           (helm-ff-default-directory default-directory)
+           (follow (and helm-follow-mode-persistent
+                        (assoc-default 'follow helm-source-grep)))
+           (helm-grep-in-recurse t)
+           (helm-grep-ignored-files (-union (projectile-ignored-files-rel)  grep-find-ignored-files))
+           (helm-grep-ignored-directories (-union (projectile-ignored-directories-rel) grep-find-ignored-directories))
+           (helm-grep-default-command (if use-ack-p
+                                          (concat ack-executable " -H --no-group --no-color " ack-ignored-pattern " %p %f")
+                                        (if (and projectile-use-git-grep (eq (projectile-project-vcs) 'git))
+                                            "git --no-pager grep --no-color -n -e %p -- %f"
+                                          "grep -a -R %e -n%cH -e %p %f .")))
+           (helm-grep-default-recurse-command helm-grep-default-command)
+           (helm-source-grep
+            (helm-build-async-source
+                (capitalize (helm-grep-command t))
+              :header-name (lambda (name)
+                             (let ((name (if use-ack-p
+                                             "Helm Projectile Ack"
+                                           "Helm Projectile Grep")))
+                               (concat name " " "(C-c ? Help)")))
+              :candidates-process 'helm-grep-collect-candidates
+              :filter-one-by-one 'helm-grep-filter-one-by-one
+              :candidate-number-limit 9999
+              :nohighlight t
+              ;; We need to specify keymap here and as :keymap arg [1]
+              ;; to make it available in further resuming.
+              :keymap helm-grep-map
+              :history 'helm-grep-history
+              :action (helm-make-actions
+                       "Find file" 'helm-grep-action
+                       "Find file other frame" 'helm-grep-other-frame
+                       (lambda () (and (locate-library "elscreen")
+                                       "Find file in Elscreen"))
+                       'helm-grep-jump-elscreen
+                       "Save results in grep buffer" 'helm-grep-save-results
+                       "Find file other window" 'helm-grep-other-window)
+              :persistent-action 'helm-grep-persistent-action
+              :persistent-help "Jump to line (`C-u' Record in mark ring)"
+              :requires-pattern 2)))
+      (helm
+       :sources 'helm-source-grep
+       :input (if (region-active-p)
+                  (buffer-substring-no-properties (region-beginning) (region-end))
+                (thing-at-point 'symbol))
+       :buffer (format "*helm %s*" (if use-ack-p
+                                       "ack"
+                                     "grep"))
+       :default-directory default-directory
+       :keymap helm-grep-map
+       :history 'helm-grep-history
+       :truncate-lines t)))
+
+#+END_SRC
+
 
 ** neotree
 
@@ -560,6 +668,45 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 #+end_src
 
 * Development
+** maxima
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "/usr/share/maxima/5.35.1/emacs/")
+(autoload 'maxima-mode "maxima" "Maxima mode" t)
+ (autoload 'imaxima "imaxima" "Frontend for maxima with Image support" t)
+ (autoload 'maxima "maxima" "Maxima interaction" t)
+ (autoload 'imath-mode "imath" "Imath mode for math formula input" t)
+ (setq imaxima-use-maxima-mode-flag t)
+ (add-to-list 'auto-mode-alist '("\\.ma[cx]" . maxima-mode))
+
+#+END_SRC
+
+** golang
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'go-mode)
+(require 'go-mode-autoloads)
+(setq gofmt-command "goimports")
+
+(setq exec-path (cons "/home/tristan/vendor/go/bin" exec-path))
+(add-to-list 'exec-path "/home/tristan/me/projects/go/bin")
+(add-hook 'before-save-hook 'gofmt-before-save)
+
+#+END_SRC
+
+** arduino-mode
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'arduino-mode)
+#+END_SRC
+
+** yaml-mode
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'yaml-mode)
+#+END_SRC
+
+** auctex
+#+BEGIN_SRC emacs-lisp
+;;(ensure-package 'auctex)
+#+END_SRC
+
 ** Magit
 
 #+begin_src emacs-lisp
@@ -673,33 +820,10 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'json-reformat)
 #+end_src
 
-** clojure
-#+begin_src emacs-lisp
-  (ensure-package 'inflections)
-  (ensure-package 'clj-refactor)
-  (load-file (expand-file-name "site-lisp/clj-autotest.el" init-dir))
-  (require 'clj-autotest)
-
-    (global-set-key (kbd "M-r") 'move-to-window-line-top-bottom)
-
-
-#+end_src
-
 ** ecb
 #+BEGIN_SRC emacs-lisp
 (ensure-package 'ecb)
 #+END_SRC
-
-* Gnus
-#+begin_src emacs-lisp
-(setq gnus-select-method '(nntp "news.gmane.org"))
-#+end_src
-
-* Agenda
-
-#+begin_src emacs-lisp
-  (setq org-agenda-files (list "~/SpiderOak Hive/me/tasks.org" "~/SpiderOak Hive/me/journal.org"))
-#+end_src
 
 ** Jade
 
@@ -716,6 +840,9 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
   (setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
 
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  (setq temporary-file-directory (expand-file-name "/tmp"))
+
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((R . t)
@@ -728,9 +855,18 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
      (plantuml . t)
      (js . t)
      (sql . t)
-     (clojure . t)))
+     (clojure . t)
+     (maxima . t)
+     (latex . t)))
+
+  (setq org-latex-create-formula-image-program 'dvipng)
+  ;;(setq org-latex-create-formula-image-program 'imagemagick)
 
   (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+  (defun show-tex ()
+    (org-toggle-latex-fragment))
+
+  ;;(remove-hook 'org-babel-after-execute-hook 'show-tex)
 
   (setq org-plantuml-jar-path (expand-file-name "~/vendor/plantuml/plantuml.jar"))
 #+end_src
@@ -781,14 +917,41 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (add-hook 'compilation-mode-hook 'mocha-errors)
 #+end_src
 
-** Clojure
+** clojure
+#+begin_src emacs-lisp
+  (ensure-package 'inflections)
+  (ensure-package 'clj-refactor)
+  ;;(load-file (expand-file-name "site-lisp/clj-autotest.el" init-dir))
+  (add-to-list 'auto-mode-alist '("\\.boot\\'" . clojure-mode))
+  (add-to-list 'magic-mode-alist '(".* boot" . clojure-mode))
+
+;;  (require 'clj-autotest)
+
+    (global-set-key (kbd "M-r") 'move-to-window-line-top-bottom)
+
+
+#+end_src
+
 *** Cider
 
 #+begin_src emacs-lisp
   (setq org-babel-clojure-backend 'cider)
   (ensure-package 'cider)
 
+  (defun cider-repl-custom-settings ()
+    (message "preventing cider repl other window")
+    (set-window-parameter (first (window-list)) 'no-other-window t))
+
+  (defun make-untouchable ()
+    (interactive)
+    (set-window-parameter (first (window-list)) 'no-other-window t))
+
   (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+  ;;(add-hook 'cider-repl-mode-hook 'cider-repl-custom-settings)
+
+  (defun fig ()
+    (interactive)
+    (cider-connect "localhost" 7888 (cdr (project-root-fetch))))
 #+end_src
 
 *** Paredit in clojure-mode
@@ -797,10 +960,52 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (defun clojure-mode-settings ()
    (paredit-mode 1)
    (cider-mode 1)
-   (show-paren-mode))
+   (show-paren-mode)
+   ;; (iimage-mode 1)
+   )
 
+  ;; (let ((map (make-sparse-keymap)))
+  ;;   (setq iimage-mode-map map))
+  ;; (define-key iimage-mode-map "\C-c/" nil)
   (add-hook 'clojure-mode-hook 'clojure-mode-settings)
 #+end_src
+*** align-cljlet
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'align-cljlet)
+#+END_SRC
+
+*** special forms
+#+BEGIN_SRC emacs-lisp
+(put-clojure-indent 'prop/for-all 1)
+(put-clojure-indent 'fact-qc 1)
+(put-clojure-indent 'fact 1)
+(put-clojure-indent 'qc/for-all 1)
+(put-clojure-indent 'fact-quickcheck 1)
+(put-clojure-indent 'match 1)
+(put-clojure-indent 'component/using 1)
+
+
+#+END_SRC
+
+** elisp
+#+BEGIN_SRC emacs-lisp
+
+(ensure-package 'elisp-slime-nav)
+(dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+  (add-hook hook 'elisp-slime-nav-mode))
+#+END_SRC
+
+* Gnus
+#+begin_src emacs-lisp
+(setq gnus-select-method '(nntp "news.gmane.org"))
+#+end_src
+
+* Agenda
+
+#+begin_src emacs-lisp
+  (setq org-agenda-files (list "~/me/index.org" "~/SpiderOak Hive/me/tasks.org" "~/SpiderOak Hive/me/journal.org"))
+#+end_src
+
 * RSS
 #+begin_src emacs-lisp
   (ensure-package 'elfeed)
@@ -924,6 +1129,17 @@ buffer."
 
   (global-set-key (kbd "C-,") 'completion-at-point)
 #+end_src
+
+** helm
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-g") 'helm-projectile-grep)
+
+#+END_SRC
+
+** clojure
+#+BEGIN_SRC emacs-lisp
+(define-key clojure-mode-map (kbd "C-c l") 'align-cljlet)
+#+END_SRC
 
 * Desktop
 #+begin_src emacs-lisp

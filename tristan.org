@@ -173,6 +173,16 @@
 #+RESULTS:
 : my-other-window
 
+** notes
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'deft)
+(setq deft-extensions '("org" "tex" "txt"))
+(setq deft-directory "~/me/org/")
+(setq deft-recursive t)
+(global-set-key [f6] 'deft)
+
+#+END_SRC
+
 * Look and feel
 
 ** Theme

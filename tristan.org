@@ -1,3 +1,5 @@
+#+STARTUP: showeverything
+
 * Startup packages
 #+BEGIN_SRC emacs-lisp
   (ensure-package 'seq)
@@ -110,7 +112,7 @@
   (ensure-package 'workgroups)
   (setq wg-prefix-key (kbd "C-c w"))
   (workgroups-mode 1)
-  (wg-load (expand-file-name "workgroups" "~/.emacs.d"))
+  ;;(wg-load (expand-file-name "workgroups" "~/.emacs.d"))
 #+end_src
 
 ** Ace-window for quick window switching
@@ -323,24 +325,24 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 #+END_SRC
 
 #+begin_src emacs-lisp
-  ;; Taken from starter-kit.org to fix org-mode/yas incompatibility
-  (defun yas/org-very-safe-expand ()
-    (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
+    ;; Taken from starter-kit.org to fix org-mode/yas incompatibility
+    (defun yas/org-very-safe-expand ()
+      (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
 
-  (defun yas/org-setup ()
-    ;; yasnippet (using the new org-cycle hooks)
-    (make-variable-buffer-local 'yas/trigger-key)
-    (setq yas/trigger-key [tab])
-    (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-    (define-key yas/keymap [tab] 'yas/next-field)
-    ;; Run this as the last command, to prevent the popup of multiple possible "src" expansions
-    (yas/initialize))
+    (defun yas/org-setup ()
+      ;; yasnippet (using the new org-cycle hooks)
+      (make-variable-buffer-local 'yas/trigger-key)
+      (setq yas/trigger-key [tab])
+      (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+      (define-key yas/keymap [tab] 'yas/next-field)
+      ;; Run this as the last command, to prevent the popup of multiple possible "src" expansions
+      (yas/initialize))
 
-          (add-hook 'org-mode-hook
-                    (lambda ()
-                      (org-set-local 'yas/trigger-key [tab])
-                      (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
-;;  (add-hook 'org-mode-hook #'yas/org-setup)
+            ;; (add-hook 'org-mode-hook
+            ;;           (lambda ()
+            ;;             (org-set-local 'yas/trigger-key [tab])
+            ;;             (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+  ;;  (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
 ** Expand region
@@ -552,36 +554,38 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 ** helm
 
 #+begin_src emacs-lisp
-    (ensure-package 'helm)
-    (ensure-package 'helm-cmd-t)
-    (ensure-package 'helm-ls-git)
-    (ensure-package 'helm-git-grep)
-    (require 'helm-projectile)
-    (helm-projectile-on)
+  (ensure-package 'helm)
+  (ensure-package 'helm-cmd-t)
+  (ensure-package 'helm-ls-git)
+  (ensure-package 'helm-git-grep)
+  (ensure-package 'helm-projectile)
+  (require 'helm-projectile)
+  (helm-projectile-on)
 
-    (require 'helm-config)
+  (require 'helm-config)
 
-    (defvar ts/helm-cmd-t nil)
+  (defvar ts/helm-cmd-t nil)
 
 
-    (defcustom ts/helm-sources '(helm-source-ls-git
-                                 ts/helm-cmd-t
-                                 helm-source-buffers-list
+  (defcustom ts/helm-sources '(helm-source-ls-git
+                               ts/helm-cmd-t
+                               helm-source-buffers-list
 
-                                 ;;helm-source-git-grep
-                                 ;;helm-source-ido-virtual-buffers
-                                 )
+                               ;;helm-source-git-grep
+                               ;;helm-source-ido-virtual-buffers
+                               )
 
-      "Your preferred sources to navigate"
-      :type '(repeat (choice symbol))
-      :group 'helm-files)
+    "Your preferred sources to navigate"
+    :type '(repeat (choice symbol))
+    :group 'helm-files)
 
-    (defun ts/helm-cmd-t ()
-      "Preconfigured `helm' for opening direct-web files."
-      (interactive)
-      (setq ts/helm-cmd-t (helm-cmd-t-get-create-source (helm-cmd-t-root-data)))
-      (let ((helm-ff-transformer-show-only-basename nil))
-        (helm-other-buffer ts/helm-sources "*helm*")))
+  (defun ts/helm-cmd-t ()
+    "Preconfigured `helm' for opening direct-web files."
+    (interactive)
+    (setq ts/helm-cmd-t (helm-cmd-t-get-create-source (helm-cmd-t-root-data)))
+    ;; (let ((helm-ff-transformer-show-only-basename nil))
+    ;;   (helm-other-buffer ts/helm-sources "*helm*"))
+    (helm-other-buffer ts/helm-sources "*helm*"))
 
 
 
@@ -668,6 +672,13 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 #+end_src
 
 * Development
+** org-mode
+#+BEGIN_SRC emacs-lisp
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
+#+END_SRC
+
 ** maxima
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "/usr/share/maxima/5.35.1/emacs/")
@@ -689,7 +700,14 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 (setq exec-path (cons "/home/tristan/vendor/go/bin" exec-path))
 (add-to-list 'exec-path "/home/tristan/me/projects/go/bin")
 (add-hook 'before-save-hook 'gofmt-before-save)
+(defun my-go-mode-hook ()
+  (local-set-key (kbd "M-.") 'godef-jump)
+  (local-set-key (kbd "M-,") 'pop-tag-mark)
 
+  (yafolding-mode)
+  (yas-minor-mode 1))
+
+(add-hook 'go-mode-hook 'my-go-mode-hook)
 #+END_SRC
 
 ** arduino-mode
@@ -805,6 +823,13 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (ensure-package 'cucumber)
 #+end_src
 
+** javascript
+#+BEGIN_SRC emacs-lisp
+(defun my-js-mode-settings ()
+  (yafolding-mode))
+(add-hook 'js-mode-hook 'my-js-mode-settings)
+#+END_SRC
+
 ** js-lookup
 #+begin_src emacs-lisp
   (ensure-package 'js-lookup)
@@ -857,7 +882,8 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
      (sql . t)
      (clojure . t)
      (maxima . t)
-     (latex . t)))
+     (latex . t)
+     (shell . t)))
 
   (setq org-latex-create-formula-image-program 'dvipng)
   ;;(setq org-latex-create-formula-image-program 'imagemagick)
@@ -917,7 +943,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (add-hook 'compilation-mode-hook 'mocha-errors)
 #+end_src
 
-** clojure
+** COMMENT clojure
 #+begin_src emacs-lisp
   (ensure-package 'inflections)
   (ensure-package 'clj-refactor)
@@ -1003,7 +1029,7 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 * Agenda
 
 #+begin_src emacs-lisp
-  (setq org-agenda-files (list "~/me/index.org" "~/SpiderOak Hive/me/tasks.org" "~/SpiderOak Hive/me/journal.org"))
+  (setq org-agenda-files (list "~/me/org/index.org"))
 #+end_src
 
 * RSS
@@ -1112,11 +1138,14 @@ buffer."
     ;; (global-set-key (kbd "<XF86AudioLowerVolume>") 'lower-volume)
     (global-set-key (kbd "M-0") 'ace-window)
 
+
+
     (defvar yafolding-mode-map
       (let ((map (make-sparse-keymap)))
         (define-key map (kbd "<C-S-return>") #'yafolding-hide-parent-element)
         (define-key map (kbd "<C-M-return>") #'yafolding-toggle-all)
         (define-key map (kbd "<C-return>") #'yafolding-toggle-element)
+
         map))
 
   ;; TODO move non-key related stuff to Development
@@ -1138,7 +1167,7 @@ buffer."
 
 ** clojure
 #+BEGIN_SRC emacs-lisp
-(define-key clojure-mode-map (kbd "C-c l") 'align-cljlet)
+;;(define-key clojure-mode-map (kbd "C-c l") 'align-cljlet)
 #+END_SRC
 
 * Desktop
@@ -1153,5 +1182,9 @@ buffer."
   ;; disabled to test wg-load
   (setq inhibit-splash-screen t)
   (message "Done!")
+
   ;;(welcome-screen)
+  (find-file "~/me/org/index.org")
+  (wg-load "~/.emacs.d/workgroups")
+
 #+end_src

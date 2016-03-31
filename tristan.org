@@ -33,6 +33,11 @@
   (setq debug-on-error nil)
 #+end_src
 
+** Autocomplete
+#+BEGIN_SRC emacs-lisp
+(ensure-package 'auto-complete)
+#+END_SRC
+
 ** Packages
 #+begin_src emacs-lisp
 
@@ -703,9 +708,18 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
 
 ** golang
 #+BEGIN_SRC emacs-lisp
+
 (ensure-package 'go-mode)
+
 (require 'go-mode-autoloads)
 (setq gofmt-command "goimports")
+
+(ensure-package 'go-autocomplete)
+(with-eval-after-load 'go-mode
+   (require 'go-autocomplete))
+
+(add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs"))
+(require 'golint)
 
 (setq exec-path (cons "/home/tristan/vendor/go/bin" exec-path))
 (add-to-list 'exec-path "/home/tristan/me/projects/go/bin")
@@ -715,9 +729,11 @@ Make yes or no a single key thing, instead of having to type "yes(return)".
   (local-set-key (kbd "M-,") 'pop-tag-mark)
 
   (yafolding-mode)
-  (yas-minor-mode 1))
+  (yas-minor-mode 1)
+  (auto-complete-mode 1))
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
+
 #+END_SRC
 
 ** arduino-mode
